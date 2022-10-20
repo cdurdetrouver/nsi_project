@@ -1,4 +1,6 @@
-import pygame 
+import pygame
+
+from script.game.projectile import Projectile 
 
 class Fusee():
     # cette class gere la fusee
@@ -9,6 +11,8 @@ class Fusee():
         self.sprite = pygame.transform.scale(self.sprite, (self.screen_size[0] * 0.1, self.screen_size[0] * 0.1 * self.image_size[1]/self.image_size[0]))
         self.image_size = self.sprite.get_size() # taille de l'image final
         self.pos = [pos[0] - (self.image_size[0]/2), pos[1]] # position de la fusee
+
+        self.proj = Projectile(self)
 
         
     #fonctions de collisions
@@ -43,4 +47,5 @@ class Fusee():
     def afficher(self,screen):
         # affichage de la fusee
         self.collision()
+        self.proj.afficher(screen)
         screen.blit(self.sprite,(self.pos[0],self.pos[1]))

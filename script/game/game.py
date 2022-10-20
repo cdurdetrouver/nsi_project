@@ -94,7 +94,7 @@ class Game():
             if not self.already:
                 return
             else: 
-                self.score.ajout_score(1)
+                self.fusee.proj.launch_x()
                 self.already = False
         else:
             self.already = True

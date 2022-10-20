@@ -66,8 +66,6 @@ class ButtonParameter():
         else:
             screen.blit(self.image,(self.pos[0], self.pos[1]))
 
-import pygame
-
 class ButtonStart():
     # gere le menu
     def __init__(self,pos, screen_size):
@@ -75,12 +73,12 @@ class ButtonStart():
         self.pos = [pos[0], pos[1]] # position du boutton
         self.image = pygame.image.load("image/button_start.png") # charger l'image du boutton
         self.image_size = self.image.get_size() # taille de l'image pour la reduction
-        self.image = pygame.transform.scale(self.image, (self.screen_size[0] * 0.3, self.screen_size[0] * 0.3 * self.image_size[1]/self.image_size[0]))
+        self.image = pygame.transform.scale(self.image, (self.screen_size[0] * 0.4, self.screen_size[0] * 0.4 * self.image_size[1]/self.image_size[0]))
         self.image_size = self.image.get_size() # taille de l'image final
 
         self.pos = [pos[0] - (self.image_size[0]/2), pos[1] - (self.image_size[1]/2)]
 
-        self.rect = pygame.Rect(self.pos[0], self.pos[1], self.screen_size[0] * 0.3, self.screen_size[0] * 0.3 * self.image_size[1]/self.image_size[0])
+        self.rect = pygame.Rect(self.pos[0], self.pos[1], self.screen_size[0] * 0.4, self.screen_size[0] * 0.4 * self.image_size[1]/self.image_size[0])
 
         self.image_copy = self.image.copy() # charger l'image du boutton
         self.image_copy = pygame.transform.scale(self.image_copy, (self.image_size[0] * 1.2, self.image_size[1] * 1.2))
