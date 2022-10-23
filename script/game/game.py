@@ -1,3 +1,4 @@
+from webbrowser import get
 import pygame
 from pygame.locals import *
 from script.game.fusee import Fusee
@@ -20,6 +21,7 @@ class Game():
         pygame.mouse.set_cursor(self.cursors[0])
 
         self.already = False # est-ce que la barre espace est enfonce
+        self.already2 = False # est-ce que la touche p est enfonce
 
         # affichage du background
         self.new_screen(self.size)
@@ -37,10 +39,8 @@ class Game():
         pygame.font.init()
         self.police = pygame.font.SysFont("font/font.ttf", 256) # police d'ecriture
 
-        self.UI = UI(self.size, self) # creation de l'interface utilisateur
-        self.score = self.UI.get_score()
-        self.button_start = self.UI.get_button_start()
-        self.button_parameter = self.UI.get_button_parameter()
+        self.gameOver = False
+
 
 
     def new_screen(self, screen_size):
@@ -60,35 +60,46 @@ class Game():
         self.background_blur = pygame.transform.scale(self.background_blur,(self.background_size[0] * aug, screen_size[1])) #redimension
         self.background_size = self.background.get_size() # taille du fond d'ecran apres redimensionnement
 
+        self.game_over_image = pygame.image.load("image/game_over.png") # image de game over
+        self.game_over_image = pygame.transform.scale(self.game_over_image,(self.size[0] * 50/100, self.size[0] * 50/100 * self.game_over_image.get_size()[1]/self.game_over_image.get_size()[0])) #redimension
+
         # appel des objets
-        self.UI = UI(self.size, self) # creation de l'interface utilisateur
+        self.UI = UI(self.size, self, None) # creation de l'interface utilisateur
         self.score = self.UI.get_score()
         self.button_start = self.UI.get_button_start()
         self.button_parameter = self.UI.get_button_parameter()
+
+    def game_over(self):
+        # quand la vie est a 0
+        self.gameOver = True
+        pygame.mouse.set_cursor(self.cursors[0]) # cursor non-transparent
 
     def handle_input(self, pressed):
 
         if pressed[pygame.K_ESCAPE]: 
             self.destroy() # arreter le jeu
-        if pressed[pygame.K_DELETE]:
-            self.menu = True # retourner au menu d'acceuil
-            pygame.mouse.set_cursor(self.cursors[0]) # cursor non-transparent
 
         if pressed[pygame.K_p]:
-            self.new_screen((1000,500))
+            if not self.already2:
+                return
+            else: 
+                self.life.lost_life()
+                self.already2 = False
+        else:
+            self.already2 = True
 
         # pas d'autre touche si on est sur le menu
         if self.menu:
             return
 
         if pressed[pygame.K_UP]:
-            self.fusee.up(8) # deplacer la fusee en haut
+            self.fusee.up() # deplacer la fusee en haut
         if pressed[pygame.K_DOWN]:
-            self.fusee.down(8) # deplacer la fusee en bas
+            self.fusee.down() # deplacer la fusee en bas
         if pressed[pygame.K_RIGHT]:
-            self.fusee.right(8) # deplacer la fusee sur la droite
+            self.fusee.right() # deplacer la fusee sur la droite
         if pressed[pygame.K_LEFT]:
-            self.fusee.left(8) # deplacer la fusee sur la gauche
+            self.fusee.left() # deplacer la fusee sur la gauche
         
         if pressed[pygame.K_SPACE]:
             if not self.already:
@@ -108,6 +119,10 @@ class Game():
         elif self.parameter:
             self.window.blit(self.background_blur,(0 - (self.background_size[0] - self.size[0]), 0)) # afficher le background
             self.UI.afficher(self.window, "parameter") # afficher le menu parametre
+        elif self.gameOver:
+            self.window.fill((0,0,0))
+            self.window.blit(self.game_over_image, (self.size[0] * 25/100, self.size[1] * 25/100))
+            self.UI.afficher(self.window, "gameover") # afficher le score
         else :
             self.window.blit(self.background,(0 - (self.background_size[0] - self.size[0]), 0)) # afficher le background
             self.fusee.afficher(self.window) # afficher la fusee
@@ -124,7 +139,9 @@ class Game():
             pygame.display.flip()
             pygame.time.wait(1000)
 
-        self.fusee = Fusee((self.size[0]/2,self.size[1]), self.size) # appel la fusee
+        self.fusee = Fusee((self.size[0]/2,self.size[1]), self.size, self) # appel la fusee
+        self.life = self.fusee.get_life()
+        self.UI = UI(self.size, self, self.life) # creation de l'interface utilisateur
         self.score.reset()
        
     def run(self):
@@ -143,7 +160,7 @@ class Game():
                 if event.type == pygame.QUIT:
                     self.running = False
                 
-                if not(self.menu) and not(self.parameter):
+                if not(self.menu) and not(self.parameter) and not(self.gameOver):
                     break
 
                 if event.type == MOUSEBUTTONDOWN:

@@ -3,10 +3,11 @@ from script.UI.menu import Menu
 import pygame
 
 class UI():
-    def __init__(self, size, game):
+    def __init__(self, size, game, life):
         self.size = size
         
-        self.score = Score((self.size[0] - self.size[0]/40, self.size[1]/40), self.size)
+        self.life = life
+        self.score = Score((self.size[0] - self.size[0]/40, self.size[1]/20), self.size)
         self.button_start = ButtonStart((self.size[0]//2, self.size[1]//2), self.size)
         self.button_parameter = ButtonParameter(self.size)
 
@@ -33,9 +34,12 @@ class UI():
             self.button_start.afficher(window)
             self.button_parameter.afficher(window)
         elif screen == "parameter":
-            self.menu.afficher(window)
+            self.menu.afficher(window, "parameter")
+        elif screen == "gameover":
+            self.menu.afficher(window, "gameover")
         else:
             self.score.afficher(window)
+            self.life.afficher(window)
 
 class ButtonParameter():
     # gere le menu

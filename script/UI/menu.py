@@ -50,10 +50,11 @@ class Menu():
     def click_back(self):
         return self.button_back.click()
 
-    def afficher(self, screen):
-        screen.blit(self.image,(self.screen_size[0] / 2  - self.image.get_size()[0]/2, self.screen_size[1]/40))
-        for button in self.buttons:
-            button.afficher(screen)
+    def afficher(self, screen, ecran):
+        if ecran == "parameter":
+            screen.blit(self.image,(self.screen_size[0] / 2  - self.image.get_size()[0]/2, self.screen_size[1]/40))
+            for button in self.buttons:
+                button.afficher(screen)
         self.button_back.afficher(screen)
 
 class ButtonBack():
@@ -81,7 +82,9 @@ class ButtonBack():
         return pygame.Rect.collidepoint(self.rect, (pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]))
 
     def click(self):
+        self.game.gameOver = False
         self.game.menu = True
+        pygame.mouse.set_cursor(pygame.cursors.Cursor((24, 24), (0, 0), *pygame.cursors.compile(pygame.cursors.thickarrow_strings))) # cursor non-transparent
 
     def afficher(self, screen):
         # affichage du score
@@ -102,9 +105,9 @@ class Button():
         self.police = pygame.font.SysFont("font/font.ttf", 52)
 
         if screensize[0] == self.taille[0] and screensize[1] == self.taille[1]:
-            self.image_text = self.police.render( f"Fullscreen", True , (0,0,0) ) # image du score ("texte a afficher", couleur?, couleur)
+            self.image_text = self.police.render( f"Fullscreen", True , (255,255,255) ) # image du score ("texte a afficher", couleur?, couleur)
         else: 
-            self.image_text = self.police.render( f"{self.taille[0]} X {self.taille[1]}", True , (0,0,0) ) # image du score ("texte a afficher", couleur?, couleur)
+            self.image_text = self.police.render( f"{self.taille[0]} X {self.taille[1]}", True , (255,255,255) ) # image du score ("texte a afficher", couleur?, couleur)
         
         self.image_text = pygame.transform.scale(self.image_text, (self.screen_size[0] * 0.2, self.screen_size[0] * 0.2 * self.image_text.get_size()[1]/self.image_text.get_size()[0]))
         self.image_text_size = self.image_text.get_size()
