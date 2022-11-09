@@ -7,10 +7,11 @@ class Menu():
     # gere le menu
     def __init__(self, screen_size, game):
         self.screen_size = screen_size
+        self.game = game
     
         # texte du score
         pygame.font.init()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
-        self.police = pygame.font.SysFont("font/font.ttf", 64) # police d'ecriture
+        self.police = pygame.font.SysFont("font/font.ttf", 256) # police d'ecriture
 
         
         self.image = self.police.render("Menu", True, (255, 255, 255))
@@ -41,9 +42,11 @@ class Menu():
         self.button_back = ButtonBack(self.screen_size, game)
 
     def click_on_button(self):
-        for button in self.buttons:
-            if button.on():
-                button.click()
+        if self.game.parameter:
+            for button in self.buttons:
+                if button.on():
+                    button.click()
+        
         if self.button_back.on():
             self.button_back.click()
 
@@ -83,6 +86,8 @@ class ButtonBack():
 
     def click(self):
         self.game.gameOver = False
+        self.game.highscore = False
+        self.game.parameter = False
         self.game.menu = True
         pygame.mouse.set_cursor(pygame.cursors.Cursor((24, 24), (0, 0), *pygame.cursors.compile(pygame.cursors.thickarrow_strings))) # cursor non-transparent
 
@@ -102,7 +107,7 @@ class Button():
 
         # police d'ecriture
         pygame.font.init()
-        self.police = pygame.font.SysFont("font/font.ttf", 52)
+        self.police = pygame.font.SysFont("font/font.ttf", 256)
 
         if screensize[0] == self.taille[0] and screensize[1] == self.taille[1]:
             self.image_text = self.police.render( f"Fullscreen", True , (255,255,255) ) # image du score ("texte a afficher", couleur?, couleur)
