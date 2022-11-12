@@ -41,6 +41,8 @@ class Classement():
         self.image_rang = pygame.transform.scale(self.image_rang, (self.size[1] * 5/100 * self.image_rang.get_size()[0] / self.image_rang.get_size()[1],self.size[1] * 5/100))
         self.image_score = pygame.transform.scale(self.image_score, (self.size[1] * 5/100 * self.image_score.get_size()[0] / self.image_score.get_size()[1] ,self.size[1] * 5/100))
         self.image_pseudo = pygame.transform.scale(self.image_pseudo, (self.size[1] * 5/100 * self.image_pseudo.get_size()[0] / self.image_pseudo.get_size()[1] ,self.size[1] * 5/100))
+        self.width = 20 + self.image_score.get_size()[0] + 20 + 40 + self.image_pseudo.get_size()[0] + 40 + 20 + self.image_rang.get_size()[0] + 20
+        self.height = (20 + self.image_pseudo.get_size()[1]) * 10
 
     def update_classement(self, user_name, score):
         if not(self.connexion):
@@ -55,6 +57,8 @@ class Classement():
                     { "$set" :{ "score": score } }
                 )
                 already = True
+            else:
+                return
 
         if not(already):
             post = {
@@ -70,6 +74,8 @@ class Classement():
         for result in results:
             self.liste_resultats.append(result)
 
+        self.tri_liste()
+
     def tri_liste(self):
         for i in range(len(self.liste_resultats)):
             for j in range(len(self.liste_resultats) - 1):
@@ -83,15 +89,10 @@ class Classement():
             image = pygame.transform.scale(image,(self.size[0] * 30/100, image.get_size()[1]/image.get_size()[0] * self.size[0] * 30/100))
             screen.blit(image, (self.size[0]//2 - image.get_size()[0]//2, self.size[1]//2 - image.get_size()[1]//2))
             return
-
-        self.tri_liste()
-
-        width = 20 + self.image_score.get_size()[0] + 20 + 40 + self.image_pseudo.get_size()[0] + 40 + 20 + self.image_rang.get_size()[0] + 20
-        height = (20 + self.image_pseudo.get_size()[1]) * 10
         
-        screen.blit(self.image_rang, (self.size[0]//2 - width//2 + 20, self.size[1]//2 - height//2))
-        screen.blit(self.image_pseudo, (self.size[0]//2 - width//2 + 80 + self.image_rang.get_size()[0], self.size[1]//2 - height//2))
-        screen.blit(self.image_score, (self.size[0]//2 - width//2 + 140 + self.image_rang.get_size()[0] + self.image_pseudo.get_size()[0], self.size[1]//2 - height//2))
+        screen.blit(self.image_rang, (self.size[0]//2 - self.width//2 + 20, self.size[1]//2 - self.height//2))
+        screen.blit(self.image_pseudo, (self.size[0]//2 - self.width//2 + 80 + self.image_rang.get_size()[0], self.size[1]//2 - self.height//2))
+        screen.blit(self.image_score, (self.size[0]//2 - self.width//2 + 140 + self.image_rang.get_size()[0] + self.image_pseudo.get_size()[0], self.size[1]//2 - self.height//2))
 
         for i in range(10):
             if i < len(self.liste_resultats):
@@ -104,6 +105,6 @@ class Classement():
                 score = self.font.render(str(self.liste_resultats[i]["score"]), True , (255,255,255))
                 score = pygame.transform.scale(score, (self.size[1] * 5/100 * score.get_size()[0] / score.get_size()[1],self.size[1] * 5/100))
 
-                screen.blit(nb, (self.size[0]//2 - width//2 + 20 + self.image_rang.get_size()[0]//2 - nb.get_size()[0]//2,self.size[1]//2 - height//2 + self.image_rang.get_size()[1] + 10 + 10 * (i + 1) + nb.get_size()[1] * i))
-                screen.blit(pseudo, (self.size[0]//2 - width//2 + 80 + self.image_rang.get_size()[0] + self.image_pseudo.get_size()[0]//2 - pseudo.get_size()[0]//2,self.size[1]//2 - height//2 + self.image_rang.get_size()[1] + 10 + 10 * (i + 1) + pseudo.get_size()[1] * i))
-                screen.blit(score, (self.size[0]//2 - width//2 + 140 + self.image_rang.get_size()[0] + self.image_pseudo.get_size()[0] + self.image_score.get_size()[0]//2 - score.get_size()[0]//2,self.size[1]//2 - height//2 + self.image_rang.get_size()[1] + 10 + 10 * (i + 1) + score.get_size()[1] * i))
+                screen.blit(nb, (self.size[0]//2 - self.width//2 + 20 + self.image_rang.get_size()[0]//2 - nb.get_size()[0]//2,self.size[1]//2 - self.height//2 + self.image_rang.get_size()[1] + 10 + 10 * (i + 1) + nb.get_size()[1] * i))
+                screen.blit(pseudo, (self.size[0]//2 - self.width//2 + 80 + self.image_rang.get_size()[0] + self.image_pseudo.get_size()[0]//2 - pseudo.get_size()[0]//2,self.size[1]//2 - self.height//2 + self.image_rang.get_size()[1] + 10 + 10 * (i + 1) + pseudo.get_size()[1] * i))
+                screen.blit(score, (self.size[0]//2 - self.width//2 + 140 + self.image_rang.get_size()[0] + self.image_pseudo.get_size()[0] + self.image_score.get_size()[0]//2 - score.get_size()[0]//2,self.size[1]//2 - self.height//2 + self.image_rang.get_size()[1] + 10 + 10 * (i + 1) + score.get_size()[1] * i))

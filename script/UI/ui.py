@@ -3,11 +3,14 @@ from script.UI.menu import Menu
 import pygame
 
 class UI():
-    def __init__(self, size, game, life):
+    def __init__(self, size, game, life, score = None):
         self.size = size
+        if score:
+            self.score = score
+        else:
+            self.score = Score((size[0] - size[0]/40, size[1]/20), size)
         
         self.life = life
-        self.score = Score((self.size[0] - self.size[0]/40, self.size[1]/20), self.size)
         self.button_start = ButtonStart((self.size[0]//2, self.size[1]//2), self.size)
         self.button_parameter = ButtonParameter(self.size)
         self.button_high_score = ButtonHighScore((self.size[0]//2, self.size[1]*0.75), self.size)

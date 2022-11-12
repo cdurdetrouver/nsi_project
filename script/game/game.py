@@ -115,9 +115,6 @@ class Game():
         else:
             self.already2 = True
 
-        if pressed[pygame.K_j]:
-            self.score.ajout_score(1)
-
         if pressed[pygame.K_UP] or pressed[pygame.K_z]:
             self.fusee.up() # deplacer la fusee en haut
         if pressed[pygame.K_DOWN] or pressed[pygame.K_s]:
@@ -131,7 +128,7 @@ class Game():
             if not self.already:
                 return
             else: 
-                self.fusee.proj.launch_x()
+                self.fusee.proj.launch = True
                 self.already = False
         else:
             self.already = True
@@ -176,11 +173,11 @@ class Game():
             pygame.display.flip()
             pygame.time.wait(1000)
 
-        self.fusee = Fusee((self.size[0]/2,self.size[1]), self.size, self) # appel la fusee
+        self.fusee = Fusee((self.size[0]/2,self.size[1]), self.size, self, self.score) # appel la fusee
         self.life = self.fusee.get_life()
-        self.UI = UI(self.size, self, self.life) # appel l'interface utilisateur
-        self.score = self.UI.get_score()
-       
+        self.UI = UI(self.size, self, self.life, self.score) # appel l'interface utilisateur
+        self.score.reset() # remettre le score a 0
+
     def run(self):
 
         self.user_name = ''

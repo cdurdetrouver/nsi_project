@@ -12,6 +12,9 @@ class Score():
         self.police = pygame.font.SysFont("font/font.ttf", 256) # police d'ecriture
 
 
+    def reset(self):
+        self.score = 0
+
     def ajout_score(self,nb):
         # ajouter le nombre de point en argument au score actuel
         self.score += nb
