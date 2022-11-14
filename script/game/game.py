@@ -1,5 +1,6 @@
-import time
 import pygame
+import unidecode
+import sqlite3
 from pygame.locals import *
 from script.game.fusee import Fusee
 from script.UI.ui import UI
@@ -29,7 +30,7 @@ class Game():
         pygame.font.init()
         self.police = pygame.font.SysFont("font/font.ttf", 256) # police d'ecriture
 
-        self.classement = Classement(self.size)
+        self.classement = Classement(self.size, self)
         self.classement.connect()
         self.internet_connexion = self.classement.get_connexion()
 
@@ -82,6 +83,8 @@ class Game():
         self.input_rect = pygame.Rect((self.size[0] * 5 / 100, self.size[1]//2), (self.size[0] * 9 / 100, self.size[0] * 3 / 100))
         self.text_pseudo = self.police.render("Pseudo :", True, (255,255,255))
         self.text_pseudo = pygame.transform.scale(self.text_pseudo, (self.size[1] * 5 / 100 * self.text_pseudo.get_size()[0] / self.text_pseudo.get_size()[1], self.size[1] * 5 / 100))
+        self.text_wrong = self.police.render("Pseudo interdit", True, (255,0,0))
+        self.text_wrong = pygame.transform.scale(self.text_wrong, (self.size[1] * 5 / 100 * self.text_wrong.get_size()[0] / self.text_wrong.get_size()[1], self.size[1] * 5 / 100))
 
         # appel des objets
         self.UI = UI(self.size, self, None) # creation de l'interface utilisateur
@@ -145,6 +148,8 @@ class Game():
             # render at position stated in arguments
             self.window.blit(self.text_surface, (self.size[0] * 5 / 100, self.size[1]//2))
             self.window.blit(self.text_pseudo, (self.size[0] * 5 / 100, self.size[1]//2 - 1.5 * self.text_surface.get_size()[1]))
+            if self.wrong_pseudo:
+                self.window.blit(self.text_wrong, (self.size[0] * 5 / 100, self.size[1]//2 + 1.5 * self.text_surface.get_size()[1]))
         elif self.parameter:
             self.window.blit(self.background_blur,(0 - (self.background_size[0] - self.size[0]), 0)) # afficher le background
             self.UI.afficher(self.window, "parameter") # afficher le menu parametre
@@ -181,6 +186,10 @@ class Game():
     def run(self):
 
         self.user_name = ''
+
+        self.wrong_pseudo = False
+
+        symbols = [" " ,"-" ,"_","~" ,"/" ,"\\" ,"." ,"," ,";" ,":" ,"?" ,"!" ,"@" ,"#" ,"$" ,"%" ,"^" ,"&" ,"*" ,"(" ,")" ,"[" ,"]" ,"{" ,"}" ,"<" ,">" ,"=" ,"+" ,"`" ,"'" ,"\"" ,"1" ,"2" ,"3" ,"4" ,"5" ,"6" ,"7" ,"8" ,"9","0"]
         
         # color_active stores color(lightskyblue3) which
         # gets active when input box is clicked by user
@@ -192,6 +201,13 @@ class Game():
         self.color = color_passive
         
         active = False
+
+        connexion = sqlite3.connect("base_de_donee/grots_mots.db")
+        cursor = connexion.cursor()
+        injures = cursor.execute("""SELECT * FROM injures""")
+        bad_words = []
+        for elem in injures:
+            bad_words.append(unidecode.unidecode(elem[0]).upper())
 
         # boucle qui gere le jeu
         while self.running:
@@ -226,6 +242,8 @@ class Game():
 
                 if event.type == pygame.KEYDOWN:
                     if active:
+                        
+                        self.wrong_pseudo = False
                         # Check for backspace
                         if event.key == pygame.K_BACKSPACE:
         
@@ -237,6 +255,19 @@ class Game():
                         else:
                             if len(self.user_name) < 13:
                                 self.user_name += event.unicode
+
+                            self.user_name_2 = unidecode.unidecode(self.user_name).upper()
+
+                            self.user_name_final = ""
+
+                            for j in self.user_name_2:
+                                    if j != ' ' and j != '-' and j != '_'and j != '~' and j != '/' and j != '\\' and j != '.' and j != 'and j != ' and j != ';' and j != ':' and j != '?' and j != '!' and j != '@' and j != '#' and j != '$' and j != '%' and j != '^' and j != '&' and j != '*' and j != '(' and j != ')' and j != '[' and j != ']' and j != '{' and j != '}' and j != '<' and j != '>' and j != '=' and j != '+' and j != '`' and j != "'" and j != "\"" and j != '1' and j != '2' and j != '3' and j != '4' and j != '5' and j != '6' and j != '7' and j != '8' and j != '9'and j != '0' and j != '\n' and j != '"' and j != '¨' and j != 'µ' and j != "²":
+                                        self.user_name_final += j
+
+                            for word in bad_words:
+                                if word == self.user_name_final:
+                                    self.wrong_pseudo = True
+                                    self.user_name = ""
 
                 if event.type == MOUSEBUTTONDOWN:
                     if self.menu:

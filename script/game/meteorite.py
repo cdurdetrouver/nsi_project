@@ -43,9 +43,9 @@ class Meteorite(pygame.sprite.Sprite):
 
         # update position
         self.update_position()
-        # if self.collision() and not self.already:
-        #     self.fusee.life.lost_life()
-        #     self.already = True
+        if self.collision() and not self.already:
+            self.fusee.life.lost_life()
+            self.already = True
         if self.collision_proj() and not self.already:
             self.score.ajout_score(1)
             self.fusee.proj.reset()
@@ -66,9 +66,10 @@ class Pluie_Meteorite():
         self.score = score
         self.meteorites = []
         self.time = 0
+        self.time_add = 0
         self.vitesse_minimum = 2
         self.vitesse_maximum = 3
-        for i in range(5):
+        for i in range(1):
             self.meteorites.append(Meteorite(screen_size[1] // 60 // random.uniform(self.vitesse_minimum,self.vitesse_maximum), self.screen_size, self.fusee, self.score))
 
     def afficher(self, screen):
@@ -77,11 +78,15 @@ class Pluie_Meteorite():
             if self.meteorites[i].hors_champ():
                 self.meteorites[i] = Meteorite(self.screen_size[1] // 60 // random.uniform(self.vitesse_minimum,self.vitesse_maximum), self.screen_size, self.fusee, self.score)
             time = pygame.time.get_ticks()
-            if time - self.time > 500:
+            if time - self.time > 750:
                 self.time = time
-                self.vitesse_minimum -= 0.01
-                self.vitesse_maximum -= 0.01
-                if self.vitesse_minimum < 0.01:
-                    self.vitesse_minimum = 0.01
-                if self.vitesse_maximum < 0.01:
-                    self.vitesse_maximum = 0.01
+                if self.vitesse_minimum != self.vitesse_maximum:
+                    self.vitesse_minimum -= 0.01
+                    self.vitesse_maximum -= 0.01
+                    if self.vitesse_minimum < 0.05:
+                        self.vitesse_minimum = 0.05
+                    if self.vitesse_maximum < 0.05:
+                        self.vitesse_maximum = 0.05
+            if len(self.meteorites)< 5 and time - self.time_add > 1500:
+                self.meteorites.append(Meteorite(self.screen_size[1] // 60 // random.uniform(self.vitesse_minimum,self.vitesse_maximum), self.screen_size, self.fusee, self.score))
+                self.time_add = time

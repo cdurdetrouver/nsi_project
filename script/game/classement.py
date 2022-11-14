@@ -2,8 +2,9 @@ from pymongo import MongoClient
 import pygame
 
 class Classement():
-    def __init__(self, size):
+    def __init__(self, size, game):
         self.size = size
+        self.game = game
 
         self.connexion = None
 
@@ -44,7 +45,7 @@ class Classement():
         self.width = 20 + self.image_score.get_size()[0] + 20 + 40 + self.image_pseudo.get_size()[0] + 40 + 20 + self.image_rang.get_size()[0] + 20
         self.height = (20 + self.image_pseudo.get_size()[1]) * 10
 
-    def update_classement(self, user_name, score):
+    def update_classement(self, user_name:type[str], score):
         if not(self.connexion):
             return
 
@@ -56,16 +57,15 @@ class Classement():
                     { "name": user_name }, 
                     { "$set" :{ "score": score } }
                 )
-                already = True
-            else:
+                return
+            elif self.liste_resultats[i]["name"] == user_name and score < self.liste_resultats[i]["score"]:
                 return
 
-        if not(already):
-            post = {
-                "name" : user_name,
-                "score" : score
-            }
-            self.collection.insert_one(post)
+        post = {
+            "name" : user_name,
+            "score" : score
+        }
+        self.collection.insert_one(post)
 
         self.liste_resultats = []
 
