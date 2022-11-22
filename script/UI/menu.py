@@ -107,7 +107,7 @@ class Button():
 
         # police d'ecriture
         pygame.font.init()
-        self.police = pygame.font.SysFont("font/font.ttf", 256)
+        self.police = pygame.font.SysFont("font/image/font.ttf", 256)
 
         if screensize[0] == self.taille[0] and screensize[1] == self.taille[1]:
             self.image_text = self.police.render( f"Fullscreen", True , (255,255,255) ) # image du score ("texte a afficher", couleur?, couleur)

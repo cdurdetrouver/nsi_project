@@ -5,6 +5,7 @@ class Life():
     def __init__(self, life, screen_size, game, fusee):
         self.life = life
         self.game = game
+        self.fusee = fusee
 
         self.screen_size = screen_size
         self.heart = pygame.image.load("image/heart.png") # charger l'image du boutton
@@ -32,6 +33,8 @@ class Life():
     def add_life(self):
         if self.life < 3:
             self.life += 1
+        else:
+            self.fusee.score.ajout_score(3)
 
     def afficher(self, screen):
         taille = 0
@@ -79,7 +82,7 @@ class Fallen_Heart():
             self.can_fall = True
         if self.can_fall:
             screen.blit(self.sprite, (self.fallen_heart_rect.x, self.fallen_heart_rect.y))
-            pygame.draw.rect(screen, (255, 0, 0), self.fallen_heart_rect, 1)
+            # pygame.draw.rect(screen, (255, 0, 0), self.fallen_heart_rect, 1)
             self.update_position()
             if self.hors_champ():
                 self.fallen_heart_rect.x = random.randint(0, self.screen_size[0] - self.sprite.get_size()[0])

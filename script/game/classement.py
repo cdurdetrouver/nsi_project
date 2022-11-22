@@ -1,8 +1,10 @@
 from pymongo import MongoClient
 import pygame
+import sqlite3
+import unidecode
 
 class Classement():
-    def __init__(self, size, game):
+    def __init__(self, size, game, mdp):
         self.size = size
         self.game = game
 
@@ -10,16 +12,20 @@ class Classement():
 
         # texte du classement
         pygame.font.init()
-        self.font = pygame.font.SysFont("font/font.ttf", 256) # police d'ecriture
+        self.font = pygame.font.SysFont("project_nsi/font/font.ttf", 256) # police d'ecriture
 
         self.image_rang = self.font.render("Rang", True, (255,255,255))
         self.image_pseudo = self.font.render("Pseudo", True, (255,255,255))
         self.image_score = self.font.render("Score", True, (255,255,255))
 
+        self.mdp = mdp
+
     def connect(self):
         try : 
             self.liste_resultats = []
-            self.cluster = MongoClient("mongodb+srv://user:Rs2Toxno8enOGj7Y@cluster0.vemkby5.mongodb.net/?retryWrites=true&w=majority")
+            self.cluster = MongoClient(f"mongodb+srv://user:{self.mdp}@cluster0.vemkby5.mongodb.net/?retryWrites=true&w=majority")
+            # Alors je t'ai bien eu tiens un lien youtube : https://youtu.be/O91DT1pR1ew,
+            # ajoute moi sur discord si t'es un homme cdurdetrouver#3294, je t'attends
             db = self.cluster["nsi_project"]
             self.collection = db["scores"]
 
@@ -32,6 +38,8 @@ class Classement():
             
         except Exception as exc:
             self.connexion = False
+
+        self.tri_liste()
 
     def get_connexion(self):
         return self.connexion
@@ -49,7 +57,14 @@ class Classement():
         if not(self.connexion):
             return
 
-        already = False
+        new_name = ""
+
+        for i in user_name:
+            if i != " " or i != "_" or i !="-":
+                new_name += i
+        
+        if len(new_name) == 0:
+            return
 
         for i in range(len(self.liste_resultats)):
             if self.liste_resultats[i]["name"] == user_name and score > self.liste_resultats[i]["score"]:
@@ -65,6 +80,7 @@ class Classement():
             "name" : user_name,
             "score" : score
         }
+
         self.collection.insert_one(post)
 
         self.liste_resultats = []
@@ -81,6 +97,42 @@ class Classement():
             for j in range(len(self.liste_resultats) - 1):
                 if self.liste_resultats[j]["score"] < self.liste_resultats[j + 1]["score"]:
                     self.liste_resultats[j], self.liste_resultats[j + 1] = self.liste_resultats[j + 1], self.liste_resultats[j]
+
+    def check(self):
+        last_score = self.liste_resultats[14 or len(self.liste_resultats) - 1]["score"]
+
+        new_name = ""
+
+        for i in range(len(self.liste_resultats)):
+            if self.liste_resultats[i]["score"] < last_score:
+                self.collection.delete_one({"_id": self.liste_resultats[i]["_id"]})
+            for char in self.liste_resultats[i]["name"]:
+                if char!="" or char!=" " or char !="_" or char!="-":
+                    new_name += i
+
+            if len(new_name) == 0:
+                self.collection.delete_one({"_id": self.liste_resultats[i]["_id"]})
+
+        connexion = sqlite3.connect("project_nsi/base_de_donee/grots_mots.db")
+        cursor = connexion.cursor()
+        injures = cursor.execute("""SELECT * FROM injures""")
+
+        bad_words = []
+        for elem in injures:
+            bad_words.append(unidecode.unidecode(elem[0]).upper())
+
+        for m in range(len(self.liste_resultats)):
+            for n in range(len(self.liste_resultats)):
+                if unidecode.unidecode(self.liste_resultats[m]["name"]).upper() == unidecode.unidecode(self.liste_resultats[n]["name"]).upper() and m!=n:
+                    if self.liste_resultats[m]["score"] < self.liste_resultats[n]["score"]:
+                        self.collection.delete_one({"_id": self.liste_resultats[m]["_id"]})
+                    else:
+                        self.collection.delete_one({"_id": self.liste_resultats[n]["_id"]})
+
+        for i in range(len(self.liste_resultats)):
+            for j in range(len(bad_words)):
+                if bad_words[j] in unidecode.unidecode(self.liste_resultats[i]["name"]).upper():
+                    self.collection.delete_one({"_id": self.liste_resultats[i]["_id"]})
 
     def afficher(self, screen):
 

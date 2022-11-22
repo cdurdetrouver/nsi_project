@@ -9,10 +9,12 @@ from script.game.classement import Classement
 
 class Game():
     # cette class correspond à la celle qui gere tout le jeux
-    def __init__(self, size, title):
+    def __init__(self, size, title, mdp):
         self.size = size
         self.window = pygame.display.set_mode(self.size, pygame.FULLSCREEN) # creer la fenetre avec des dimensions donnees
         pygame.display.set_caption(title) # definir le titre
+        icon = pygame.image.load("assets/46217.ico")
+        pygame.display.set_icon(icon)
         self.fps = 60
         self.running = True
 
@@ -30,7 +32,7 @@ class Game():
         pygame.font.init()
         self.police = pygame.font.SysFont("font/font.ttf", 256) # police d'ecriture
 
-        self.classement = Classement(self.size, self)
+        self.classement = Classement(self.size, self,mdp)
         self.classement.connect()
         self.internet_connexion = self.classement.get_connexion()
 
@@ -53,7 +55,16 @@ class Game():
 
         self.name = "Test"
 
+        pygame.mixer.init()
 
+        pygame.mixer.music.load('musique/musique.mp3')
+        pygame.mixer.music.play(loops=-1, fade_ms=0)
+        pygame.mixer.music.set_volume(0.2)
+
+        self.shoot = pygame.mixer.Sound("musique/shoot.mp3")
+        self.gameOver_sound = pygame.mixer.Sound("musique/game_over.mp3")
+        self.gameOver_sound.set_volume(0.3)
+        self.shoot.set_volume(0.2)
 
     def new_screen(self, screen_size):
         
@@ -97,8 +108,11 @@ class Game():
     def game_over(self):
         # quand la vie est a 0
         self.gameOver = True
+        pygame.mixer.music.pause()
         pygame.mouse.set_cursor(self.cursors[0]) # cursor non-transparent
         self.classement.update_classement(self.user_name, self.score.get()) # mettre a jour le classement
+        self.gameOver_sound.play()
+
 
     def handle_input(self, pressed):
 
@@ -130,8 +144,10 @@ class Game():
         if pressed[pygame.K_SPACE]:
             if not self.already:
                 return
-            else: 
-                self.fusee.proj.launch = True
+            else:
+                for proj in self.fusee.proj:
+                    proj.launch = True
+                self.shoot.play()
                 self.already = False
         else:
             self.already = True
@@ -150,6 +166,7 @@ class Game():
             self.window.blit(self.text_pseudo, (self.size[0] * 5 / 100, self.size[1]//2 - 1.5 * self.text_surface.get_size()[1]))
             if self.wrong_pseudo:
                 self.window.blit(self.text_wrong, (self.size[0] * 5 / 100, self.size[1]//2 + 1.5 * self.text_surface.get_size()[1]))
+            pygame.mixer.music.unpause()
         elif self.parameter:
             self.window.blit(self.background_blur,(0 - (self.background_size[0] - self.size[0]), 0)) # afficher le background
             self.UI.afficher(self.window, "parameter") # afficher le menu parametre
@@ -188,8 +205,6 @@ class Game():
         self.user_name = ''
 
         self.wrong_pseudo = False
-
-        symbols = [" " ,"-" ,"_","~" ,"/" ,"\\" ,"." ,"," ,";" ,":" ,"?" ,"!" ,"@" ,"#" ,"$" ,"%" ,"^" ,"&" ,"*" ,"(" ,")" ,"[" ,"]" ,"{" ,"}" ,"<" ,">" ,"=" ,"+" ,"`" ,"'" ,"\"" ,"1" ,"2" ,"3" ,"4" ,"5" ,"6" ,"7" ,"8" ,"9","0"]
         
         # color_active stores color(lightskyblue3) which
         # gets active when input box is clicked by user
@@ -293,6 +308,8 @@ class Game():
 
     def destroy(self):
         # fermeture de la fenetre 
+        if self.classement.connexion:
+            self.classement.check()
         print("bye") # afficher bye parce que c'est marrant
         pygame.quit() # arreter pygame
         exit() # arrreter tous les programmes en cours

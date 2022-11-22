@@ -3,6 +3,7 @@ from script.UI.menu import Menu
 import pygame
 
 class UI():
+    # cree l'interface utilisateur (en jeux, menu etc...)
     def __init__(self, size, game, life, score = None):
         self.size = size
         if score:
@@ -11,6 +12,7 @@ class UI():
             self.score = Score((size[0] - size[0]/40, size[1]/20), size)
         
         self.life = life
+
         self.button_start = ButtonStart((self.size[0]//2, self.size[1]//2), self.size)
         self.button_parameter = ButtonParameter(self.size)
         self.button_high_score = ButtonHighScore((self.size[0]//2, self.size[1]*0.75), self.size)
@@ -114,7 +116,7 @@ class ButtonHighScore():
     def __init__(self,pos, screen_size):
         self.screen_size = screen_size
         self.pos = [pos[0], pos[1]] # position du boutton
-        self.image = pygame.image.load("image/button_start.png") # charger l'image du boutton
+        self.image = pygame.image.load("image/button_score.png") # charger l'image du boutton
         self.image_size = self.image.get_size() # taille de l'image pour la reduction
         self.image = pygame.transform.scale(self.image, (self.screen_size[0] * 0.4, self.screen_size[0] * 0.4 * self.image_size[1]/self.image_size[0]))
         self.image_size = self.image.get_size() # taille de l'image final
