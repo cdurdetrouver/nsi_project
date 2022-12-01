@@ -3,6 +3,7 @@ import pygame
 import sqlite3
 import unidecode
 
+
 class Classement():
     def __init__(self, size, game, mdp):
         self.size = size
@@ -12,18 +13,20 @@ class Classement():
 
         # texte du classement
         pygame.font.init()
-        self.font = pygame.font.SysFont("project_nsi/font/font.ttf", 256) # police d'ecriture
+        self.font = pygame.font.SysFont(
+            "project_nsi/font/font.ttf", 256)  # police d'ecriture
 
-        self.image_rang = self.font.render("Rang", True, (255,255,255))
-        self.image_pseudo = self.font.render("Pseudo", True, (255,255,255))
-        self.image_score = self.font.render("Score", True, (255,255,255))
+        self.image_rang = self.font.render("Rang", True, (255, 255, 255))
+        self.image_pseudo = self.font.render("Pseudo", True, (255, 255, 255))
+        self.image_score = self.font.render("Score", True, (255, 255, 255))
 
         self.mdp = mdp
 
     def connect(self):
-        try : 
+        try:
             self.liste_resultats = []
-            self.cluster = MongoClient(f"mongodb+srv://user:{self.mdp}@cluster0.vemkby5.mongodb.net/?retryWrites=true&w=majority")
+            self.cluster = MongoClient(
+                f"mongodb+srv://user:{self.mdp}@cluster0.vemkby5.mongodb.net/?retryWrites=true&w=majority")
             # Alors je t'ai bien eu tiens un lien youtube : https://youtu.be/O91DT1pR1ew,
             # ajoute moi sur discord si t'es un homme cdurdetrouver#3294, je t'attends
             db = self.cluster["nsi_project"]
@@ -35,7 +38,7 @@ class Classement():
                 self.liste_resultats.append(result)
 
             self.connexion = True
-            
+
         except Exception as exc:
             self.connexion = False
 
@@ -43,42 +46,46 @@ class Classement():
 
     def get_connexion(self):
         return self.connexion
-    
+
     def new_res(self, size):
         self.size = size
 
-        self.image_rang = pygame.transform.scale(self.image_rang, (self.size[1] * 5/100 * self.image_rang.get_size()[0] / self.image_rang.get_size()[1],self.size[1] * 5/100))
-        self.image_score = pygame.transform.scale(self.image_score, (self.size[1] * 5/100 * self.image_score.get_size()[0] / self.image_score.get_size()[1] ,self.size[1] * 5/100))
-        self.image_pseudo = pygame.transform.scale(self.image_pseudo, (self.size[1] * 5/100 * self.image_pseudo.get_size()[0] / self.image_pseudo.get_size()[1] ,self.size[1] * 5/100))
-        self.width = 20 + self.image_score.get_size()[0] + 20 + 40 + self.image_pseudo.get_size()[0] + 40 + 20 + self.image_rang.get_size()[0] + 20
+        self.image_rang = pygame.transform.scale(self.image_rang, (self.size[1] * 5/100 * self.image_rang.get_size()[
+                                                 0] / self.image_rang.get_size()[1], self.size[1] * 5/100))
+        self.image_score = pygame.transform.scale(self.image_score, (self.size[1] * 5/100 * self.image_score.get_size()[
+                                                  0] / self.image_score.get_size()[1], self.size[1] * 5/100))
+        self.image_pseudo = pygame.transform.scale(self.image_pseudo, (self.size[1] * 5/100 * self.image_pseudo.get_size()[
+                                                   0] / self.image_pseudo.get_size()[1], self.size[1] * 5/100))
+        self.width = 20 + self.image_score.get_size()[0] + 20 + 40 + self.image_pseudo.get_size()[
+            0] + 40 + 20 + self.image_rang.get_size()[0] + 20
         self.height = (20 + self.image_pseudo.get_size()[1]) * 10
 
-    def update_classement(self, user_name:type[str], score):
-        if not(self.connexion):
+    def update_classement(self, user_name: type[str], score):
+        if not (self.connexion):
             return
 
         new_name = ""
 
         for i in user_name:
-            if i != " " or i != "_" or i !="-":
+            if i != " " or i != "_" or i != "-":
                 new_name += i
-        
+
         if len(new_name) == 0:
             return
 
         for i in range(len(self.liste_resultats)):
             if self.liste_resultats[i]["name"] == user_name and score > self.liste_resultats[i]["score"]:
                 self.collection.update_one(
-                    { "name": user_name }, 
-                    { "$set" :{ "score": score } }
+                    {"name": user_name},
+                    {"$set": {"score": score}}
                 )
                 return
             elif self.liste_resultats[i]["name"] == user_name and score < self.liste_resultats[i]["score"]:
                 return
 
         post = {
-            "name" : user_name,
-            "score" : score
+            "name": user_name,
+            "score": score
         }
 
         self.collection.insert_one(post)
@@ -96,22 +103,26 @@ class Classement():
         for i in range(len(self.liste_resultats)):
             for j in range(len(self.liste_resultats) - 1):
                 if self.liste_resultats[j]["score"] < self.liste_resultats[j + 1]["score"]:
-                    self.liste_resultats[j], self.liste_resultats[j + 1] = self.liste_resultats[j + 1], self.liste_resultats[j]
+                    self.liste_resultats[j], self.liste_resultats[j +
+                                                                  1] = self.liste_resultats[j + 1], self.liste_resultats[j]
 
     def check(self):
-        last_score = self.liste_resultats[14 or len(self.liste_resultats) - 1]["score"]
+        last_score = self.liste_resultats[14 or len(
+            self.liste_resultats) - 1]["score"]
 
         new_name = ""
 
         for i in range(len(self.liste_resultats)):
             if self.liste_resultats[i]["score"] < last_score:
-                self.collection.delete_one({"_id": self.liste_resultats[i]["_id"]})
+                self.collection.delete_one(
+                    {"_id": self.liste_resultats[i]["_id"]})
             for char in self.liste_resultats[i]["name"]:
-                if char!="" or char!=" " or char !="_" or char!="-":
+                if char != "" or char != " " or char != "_" or char != "-":
                     new_name += i
 
             if len(new_name) == 0:
-                self.collection.delete_one({"_id": self.liste_resultats[i]["_id"]})
+                self.collection.delete_one(
+                    {"_id": self.liste_resultats[i]["_id"]})
 
         connexion = sqlite3.connect("project_nsi/base_de_donee/grots_mots.db")
         cursor = connexion.cursor()
@@ -123,40 +134,56 @@ class Classement():
 
         for m in range(len(self.liste_resultats)):
             for n in range(len(self.liste_resultats)):
-                if unidecode.unidecode(self.liste_resultats[m]["name"]).upper() == unidecode.unidecode(self.liste_resultats[n]["name"]).upper() and m!=n:
+                if unidecode.unidecode(self.liste_resultats[m]["name"]).upper() == unidecode.unidecode(self.liste_resultats[n]["name"]).upper() and m != n:
                     if self.liste_resultats[m]["score"] < self.liste_resultats[n]["score"]:
-                        self.collection.delete_one({"_id": self.liste_resultats[m]["_id"]})
+                        self.collection.delete_one(
+                            {"_id": self.liste_resultats[m]["_id"]})
                     else:
-                        self.collection.delete_one({"_id": self.liste_resultats[n]["_id"]})
+                        self.collection.delete_one(
+                            {"_id": self.liste_resultats[n]["_id"]})
 
         for i in range(len(self.liste_resultats)):
             for j in range(len(bad_words)):
                 if bad_words[j] in unidecode.unidecode(self.liste_resultats[i]["name"]).upper():
-                    self.collection.delete_one({"_id": self.liste_resultats[i]["_id"]})
+                    self.collection.delete_one(
+                        {"_id": self.liste_resultats[i]["_id"]})
 
     def afficher(self, screen):
 
-        if not(self.connexion):
-            image = self.font.render("no connexion", True, (255,255,255))
-            image = pygame.transform.scale(image,(self.size[0] * 30/100, image.get_size()[1]/image.get_size()[0] * self.size[0] * 30/100))
-            screen.blit(image, (self.size[0]//2 - image.get_size()[0]//2, self.size[1]//2 - image.get_size()[1]//2))
+        if not (self.connexion):
+            image = self.font.render("no connexion", True, (255, 255, 255))
+            image = pygame.transform.scale(
+                image, (self.size[0] * 30/100, image.get_size()[1]/image.get_size()[0] * self.size[0] * 30/100))
+            screen.blit(image, (self.size[0]//2 - image.get_size()
+                        [0]//2, self.size[1]//2 - image.get_size()[1]//2))
             return
-        
-        screen.blit(self.image_rang, (self.size[0]//2 - self.width//2 + 20, self.size[1]//2 - self.height//2))
-        screen.blit(self.image_pseudo, (self.size[0]//2 - self.width//2 + 80 + self.image_rang.get_size()[0], self.size[1]//2 - self.height//2))
-        screen.blit(self.image_score, (self.size[0]//2 - self.width//2 + 140 + self.image_rang.get_size()[0] + self.image_pseudo.get_size()[0], self.size[1]//2 - self.height//2))
+
+        screen.blit(
+            self.image_rang, (self.size[0]//2 - self.width//2 + 20, self.size[1]//2 - self.height//2))
+        screen.blit(self.image_pseudo, (self.size[0]//2 - self.width//2 + 80 +
+                    self.image_rang.get_size()[0], self.size[1]//2 - self.height//2))
+        screen.blit(self.image_score, (self.size[0]//2 - self.width//2 + 140 + self.image_rang.get_size()[
+                    0] + self.image_pseudo.get_size()[0], self.size[1]//2 - self.height//2))
 
         for i in range(10):
             if i < len(self.liste_resultats):
-                nb = self.font.render(str(i + 1), True , (255,255,255))
-                nb = pygame.transform.scale(nb, (self.size[1] * 5/100 * nb.get_size()[0] / nb.get_size()[1],self.size[1] * 5/100))
-                
-                pseudo = self.font.render(self.liste_resultats[i]["name"], True , (255,255,255))
-                pseudo = pygame.transform.scale(pseudo, (self.size[1] * 5/100 * pseudo.get_size()[0] / pseudo.get_size()[1],self.size[1] * 5/100))
-                
-                score = self.font.render(str(self.liste_resultats[i]["score"]), True , (255,255,255))
-                score = pygame.transform.scale(score, (self.size[1] * 5/100 * score.get_size()[0] / score.get_size()[1],self.size[1] * 5/100))
+                nb = self.font.render(str(i + 1), True, (255, 255, 255))
+                nb = pygame.transform.scale(
+                    nb, (self.size[1] * 5/100 * nb.get_size()[0] / nb.get_size()[1], self.size[1] * 5/100))
 
-                screen.blit(nb, (self.size[0]//2 - self.width//2 + 20 + self.image_rang.get_size()[0]//2 - nb.get_size()[0]//2,self.size[1]//2 - self.height//2 + self.image_rang.get_size()[1] + 10 + 10 * (i + 1) + nb.get_size()[1] * i))
-                screen.blit(pseudo, (self.size[0]//2 - self.width//2 + 80 + self.image_rang.get_size()[0] + self.image_pseudo.get_size()[0]//2 - pseudo.get_size()[0]//2,self.size[1]//2 - self.height//2 + self.image_rang.get_size()[1] + 10 + 10 * (i + 1) + pseudo.get_size()[1] * i))
-                screen.blit(score, (self.size[0]//2 - self.width//2 + 140 + self.image_rang.get_size()[0] + self.image_pseudo.get_size()[0] + self.image_score.get_size()[0]//2 - score.get_size()[0]//2,self.size[1]//2 - self.height//2 + self.image_rang.get_size()[1] + 10 + 10 * (i + 1) + score.get_size()[1] * i))
+                pseudo = self.font.render(
+                    self.liste_resultats[i]["name"], True, (255, 255, 255))
+                pseudo = pygame.transform.scale(
+                    pseudo, (self.size[1] * 5/100 * pseudo.get_size()[0] / pseudo.get_size()[1], self.size[1] * 5/100))
+
+                score = self.font.render(
+                    str(self.liste_resultats[i]["score"]), True, (255, 255, 255))
+                score = pygame.transform.scale(
+                    score, (self.size[1] * 5/100 * score.get_size()[0] / score.get_size()[1], self.size[1] * 5/100))
+
+                screen.blit(nb, (self.size[0]//2 - self.width//2 + 20 + self.image_rang.get_size()[0]//2 - nb.get_size()[
+                            0]//2, self.size[1]//2 - self.height//2 + self.image_rang.get_size()[1] + 10 + 10 * (i + 1) + nb.get_size()[1] * i))
+                screen.blit(pseudo, (self.size[0]//2 - self.width//2 + 80 + self.image_rang.get_size()[0] + self.image_pseudo.get_size()[0]//2 - pseudo.get_size()[
+                            0]//2, self.size[1]//2 - self.height//2 + self.image_rang.get_size()[1] + 10 + 10 * (i + 1) + pseudo.get_size()[1] * i))
+                screen.blit(score, (self.size[0]//2 - self.width//2 + 140 + self.image_rang.get_size()[0] + self.image_pseudo.get_size()[0] + self.image_score.get_size()[
+                            0]//2 - score.get_size()[0]//2, self.size[1]//2 - self.height//2 + self.image_rang.get_size()[1] + 10 + 10 * (i + 1) + score.get_size()[1] * i))

@@ -1,6 +1,7 @@
 import pygame
 import random
 
+
 class Life():
     def __init__(self, life, screen_size, game, fusee):
         self.life = life
@@ -8,22 +9,27 @@ class Life():
         self.fusee = fusee
 
         self.screen_size = screen_size
-        self.heart = pygame.image.load("image/heart.png") # charger l'image du boutton
+        # charger l'image du boutton
+        self.heart = pygame.image.load("image/heart.png")
 
-        self.heart_size = self.heart.get_size() # taille de l'image pour la reduction
-        self.heart = pygame.transform.scale(self.heart, (self.screen_size[0] * 0.05, self.screen_size[0] * 0.05)) 
-        self.heart_size = self.heart.get_size() # taille de l'image final
+        self.heart_size = self.heart.get_size()  # taille de l'image pour la reduction
+        self.heart = pygame.transform.scale(
+            self.heart, (self.screen_size[0] * 0.05, self.screen_size[0] * 0.05))
+        self.heart_size = self.heart.get_size()  # taille de l'image final
 
         self.empty_heart = pygame.image.load("image/empty_heart.png")
 
-        self.empty_heart_size = self.empty_heart.get_size() # taille de l'image pour la reduction
-        self.empty_heart = pygame.transform.scale(self.empty_heart, (self.screen_size[0] * 0.05, self.screen_size[0] * 0.05))
-        self.empty_heart_size = self.empty_heart.get_size() # taille de l'image final
+        # taille de l'image pour la reduction
+        self.empty_heart_size = self.empty_heart.get_size()
+        self.empty_heart = pygame.transform.scale(
+            self.empty_heart, (self.screen_size[0] * 0.05, self.screen_size[0] * 0.05))
+        self.empty_heart_size = self.empty_heart.get_size()  # taille de l'image final
 
-        self.pos = [self.screen_size[0] * 3 / 100 - (self.heart_size[0]/2), self.screen_size[0] * 3 / 100 - (self.heart_size[1]/2)]
+        self.pos = [self.screen_size[0] * 3 / 100 -
+                    (self.heart_size[0]/2), self.screen_size[0] * 3 / 100 - (self.heart_size[1]/2)]
 
-        self.fallen_heart = Fallen_Heart(self.screen_size, self, self.heart, fusee)
-
+        self.fallen_heart = Fallen_Heart(
+            self.screen_size, self, self.heart, fusee)
 
     def lost_life(self):
         self.life -= 1
@@ -39,11 +45,14 @@ class Life():
     def afficher(self, screen):
         taille = 0
         for i in range(self.life):
-            screen.blit(self.heart, (self.pos[0] * (i+1) + self.heart_size[0] * i, self.pos[1]))
+            screen.blit(
+                self.heart, (self.pos[0] * (i+1) + self.heart_size[0] * i, self.pos[1]))
             taille = i + 1
         for j in range(3 - self.life):
-            screen.blit(self.empty_heart, (self.pos[0] * (taille + j + 1) + self.empty_heart_size[0] * (taille + j), self.pos[1]))
+            screen.blit(self.empty_heart, (self.pos[0] * (
+                taille + j + 1) + self.empty_heart_size[0] * (taille + j), self.pos[1]))
         self.fallen_heart.afficher(screen)
+
 
 class Fallen_Heart():
     def __init__(self, screen_size, life, sprite, fusee):
@@ -54,7 +63,7 @@ class Fallen_Heart():
         self.fusee = fusee
 
         self.fallen_heart_rect = pygame.rect.Rect(random.randint(0, self.screen_size[0] - self.sprite.get_size()[0]), -self.sprite.get_size()[1], self.sprite.get_size()[0], self.sprite.get_size()[1])
-        
+
         self.time = 0
 
         self.can_fall = False
@@ -70,7 +79,8 @@ class Fallen_Heart():
 
     def collision(self):
         if self.fallen_heart_rect.colliderect(self.fusee.rect):
-            self.fallen_heart_rect.x = random.randint(0, self.screen_size[0] - self.sprite.get_size()[0])
+            self.fallen_heart_rect.x = random.randint(
+                0, self.screen_size[0] - self.sprite.get_size()[0])
             self.fallen_heart_rect.y = -self.sprite.get_size()[1]
             self.life.add_life()
             self.can_fall = False
@@ -81,10 +91,12 @@ class Fallen_Heart():
             self.time = 0
             self.can_fall = True
         if self.can_fall:
-            screen.blit(self.sprite, (self.fallen_heart_rect.x, self.fallen_heart_rect.y))
+            screen.blit(self.sprite, (self.fallen_heart_rect.x,
+                        self.fallen_heart_rect.y))
             # pygame.draw.rect(screen, (255, 0, 0), self.fallen_heart_rect, 1)
             self.update_position()
             if self.hors_champ():
-                self.fallen_heart_rect.x = random.randint(0, self.screen_size[0] - self.sprite.get_size()[0])
+                self.fallen_heart_rect.x = random.randint(
+                    0, self.screen_size[0] - self.sprite.get_size()[0])
                 self.fallen_heart_rect.y = 0
                 self.can_fall = False
