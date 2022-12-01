@@ -227,19 +227,18 @@ class Game():
                 if not(self.menu) and not(self.parameter) and not(self.gameOver) and not(self.highscore):
                     break
 
-                if event.type == pygame.KEYDOWN:
-                    if active:
-                        # Check for backspace
-                        if event.key == pygame.K_BACKSPACE:
+                if event.type == pygame.KEYDOWN and active:
+                    # Check for backspace
+                    if event.key == pygame.K_BACKSPACE:
         
-                            # get text input from 0 to -1 i.e. end.
-                            self.user_name = self.user_name[:-1]
+                        # get text input from 0 to -1 i.e. end.
+                        self.user_name = self.user_name[:-1]
 
-                        # Unicode standard is used for string
-                        # formation
-                        else:
-                            if len(self.user_name) < 13:
-                                self.user_name += event.unicode
+                    # Unicode standard is used for string
+                    # formation
+                    else:
+                        if len(self.user_name) < 13:
+                            self.user_name += event.unicode
 
                 if event.type == MOUSEBUTTONDOWN:
                     if self.menu:
