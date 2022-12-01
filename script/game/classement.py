@@ -48,8 +48,8 @@ class Classement():
 
         already = False
 
-        for i in range(len(self.liste_resultats)):
-            if self.liste_resultats[i]["name"] == user_name and score > self.liste_resultats[i]["score"]:
+        for i, item in enumerate(self.liste_resultats):
+            if item["name"] == user_name and score > item["score"]:
                 self.collection.update_one(
                     { "name": user_name }, 
                     { "$set" :{ "score": score } }
