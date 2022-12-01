@@ -30,14 +30,14 @@ class Menu():
         self.new_taille = []
 
         # est-ce que les tailles proposees sont plus grandes que l'ecran
-        for i in range(len(self.taille)):
-            if screensize[0] * screensize[1] >= self.taille[i][0] * self.taille[i][1]:
-                self.new_taille.append(self.taille[i])
+        for i, item in enumerate(self.taille):
+            if screensize[0] * screensize[1] >= item[0] * item[1]:
+                self.new_taille.append(item)
 
         coef = (self.screen_size[1] - self.screen_size[1]/2) / len(self.new_taille)
 
-        for i in range(len(self.new_taille)):
-            self.buttons.append(Button((self.new_taille[i][0], self.new_taille[i][1]), (self.screen_size[0] / 2, self.screen_size[1]/40 + self.screen_size[0] * 0.2 * self.image.get_size()[1]/self.image.get_size()[0] + coef * (i+1)), game, self.screen_size))
+        for i, item in enumerate(self.new_taille):
+            self.buttons.append(Button((item[0], item[1]), (self.screen_size[0] / 2, self.screen_size[1]/40 + self.screen_size[0] * 0.2 * self.image.get_size()[1]/self.image.get_size()[0] + coef * (i+1)), game, self.screen_size))
 
         self.button_back = ButtonBack(self.screen_size, game)
 
