@@ -1,3 +1,4 @@
+import sys
 import time
 import pygame
 from pygame.locals import *
@@ -267,4 +268,4 @@ class Game():
         # fermeture de la fenetre 
         print("bye") # afficher bye parce que c'est marrant
         pygame.quit() # arreter pygame
-        exit() # arrreter tous les programmes en cours
+        sys.exit() # arrreter tous les programmes en cours
